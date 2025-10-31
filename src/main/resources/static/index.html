@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Assistant - DEMO 2</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --card: #f1f5f9;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --muted: #64748b;
+    --primary: #22d3ee;
+    --ok: #10b981;
+    --err: #ef4444;
+    --lh: 1.6;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, system-ui, Segoe UI, Roboto, Arial, sans-serif;
+  }
+
+  .wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  main {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  footer {
+    position: sticky;
+    bottom: 0;
+    padding: 16px;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .35) 30%, rgba(0, 0, 0, .65));
+  }
+
+  .logo {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(135deg, #22d3ee, #8b5cf6);
+    font-weight: 700;
+  }
+
+  #chat {
+    padding: 18px;
+    overflow: auto;
+  }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    margin: 16px 0;
+  }
+
+  .msg.user {
+    justify-content: flex-end;
+  }
+
+  .msg.ai {
+    justify-content: flex-start;
+  }
+
+  .msg .b {
+    max-width: min(90vw, 1100px);
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    border-radius: 14px;
+    white-space: pre-wrap;
+    line-height: var(--lh);
+  }
+
+  .msg .b ol,
+  .msg .b ul {
+    padding-left: 1.25rem;
+    margin: .45rem 0;
+  }
+
+  .msg .b p,
+  .msg .b li {
+    margin: .25rem 0;
+  }
+
+  .msg.user .b {
+    border-top-right-radius: 6px;
+  }
+
+  .msg.ai .b {
+    border-top-left-radius: 6px;
+  }
+
+  .src {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-size: 12px;
+    border: 1px solid var(--border);
+    padding: 2px 8px;
+    border-radius: 999px;
+    color: var(--muted);
+  }
+
+  .suggest {
+    max-width: 1100px;
+    margin: 0 auto 10px auto;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 0 6px;
+  }
+
+  .suggest .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    user-select: none;
+    transition: transform .12s ease, background .12s ease;
+  }
+
+  .suggest .chip:hover {
+    transform: translateY(-1px);
+    background: #e2e8f0;
+  }
+
+  .inputbar {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 10px;
+  }
+
+  .inputbar:focus-within{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 1px rgba(59,130,246,.35);
+  }
+
+  .btn-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .btn-icon svg {
+    fill: var(--text);
+  }
+
+  textarea{
+    flex:1;
+    resize:none;
+    background:transparent;
+    border:0; outline:none;
+    color:var(--text);
+    font-family: Inter, ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    font-size:16px;
+    line-height:1.6;
+    letter-spacing:.1px;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    caret-color: var(--text);
+    padding:4px 0;
+  }
+
+  textarea::placeholder{
+    color: var(--muted);
+    opacity:.9;
+  }
+
+  textarea::selection{
+    background:rgba(59,130,246,.25);
+  }
+
+  .send:hover{ filter:brightness(.98); }
+  .send:focus{ outline:2px solid rgba(59,130,246,.35); outline-offset:2px; border-radius:999px; }
+  .send.pending:focus{ border-radius:8px; }
+
+  .send {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 0;
+    background: #3b82f6;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+
+  .send svg {
+    fill: #fff;
+  }
+
+  .toast {
+    position: fixed;
+    right: 16px;
+    bottom: 80px;
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+  }
+
+  .toast.show {
+    display: block;
+  }
+
+  .err {
+    background: #fef2f2;
+    border-color: #fca5a5;
+    color: #dc2626;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .small {
+    font-size: 12px;
+    color: var(--muted);
+  }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">AI</div>
+    <div><b>AI Assistant</b><div class="small">Chat với kiến thức từ PDF • OpenAI</div></div>
+  </header>
+
+  <main>
+    <section id="chat"></section>
+  </main>
+
+  <div id="suggest" class="suggest hidden" aria-label="Gợi ý câu hỏi"></div>
+
+  <footer>
+    <div class="inputbar">
+      <button class="btn-icon" id="btnPlus" title="Nạp PDF">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2z"></path></svg>
+      </button>
+      <input id="pdf" type="file" accept="application/pdf" class="hidden"/>
+      <textarea id="q" rows="1" placeholder="Nhập tin nhắn..."></textarea>
+      <button class="send" id="btnSend" title="Gửi">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M3.4 20.6L21 12 3.4 3.4 3 10l11 2-11 2z"/></svg>
+      </button>
+    </div>
+    <div class="small" id="footInfo" style="max-width:1100px;margin:6px auto 0; color: #fff;"></div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  
+const chat = document.getElementById('chat');
+const btnPlus = document.getElementById('btnPlus');
+const pdf = document.getElementById('pdf');
+const q = document.getElementById('q');
+const send = document.getElementById('btnSend');
+const toast = document.getElementById('toast');
+const footInfo = document.getElementById('footInfo');
+const suggest = document.getElementById('suggest');
+
+let indexed = false;
+
+function showToast(msg){ toast.textContent = msg; toast.classList.add('show'); setTimeout(()=>toast.classList.remove('show'), 2200); }
+function addMsg(text, who='ai', sources=[]){
+  const div = document.createElement('div');
+  div.className = 'msg ' + (who === 'me' ? 'user' : 'ai');
+
+  const b = document.createElement('div');
+  b.className = 'b';
+
+  if (who === 'ai') b.innerHTML = prettyAI(text || '');
+  else b.textContent = text || '';
+
+  if (sources?.length){
+    const s=document.createElement('div'); s.className='src';
+    sources.forEach(x=>{
+      const t=document.createElement('span');
+      t.className='tag'; 
+      t.title=`Chunk ${x.chunkId} - Độ tương đồng: ${(x.score * 100).toFixed(1)}%`; 
+      t.textContent=`#${x.chunkId}`;
+      s.appendChild(t);
+    });
+    b.appendChild(s);
+  }
+
+  div.appendChild(b);
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function addErr(text){
+  const div=document.createElement('div'); div.className='msg ai';
+  const b=document.createElement('div'); b.className='b err'; b.textContent=text;
+  div.appendChild(b); chat.appendChild(div); chat.scrollTop = chat.scrollHeight;
+}
+
+const DEFAULT_SUGGESTS = [
+  'Tóm tắt tài liệu này.',
+  'Nêu 5 ý quan trọng nhất của tài liệu.',
+  'Liệt kê 3 thuật ngữ / cụm từ khóa quan trọng và giải thích ngắn gọn.',
+];
+
+function showSuggest(list = DEFAULT_SUGGESTS){
+  suggest.innerHTML = '';
+  list.forEach(text=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.type = 'button';
+    chip.textContent = text;
+    chip.title = 'Nhấp để gửi • Alt/Ctrl để chỉ điền';
+    chip.addEventListener('click', (e)=>{
+      if (e.altKey || e.ctrlKey || e.metaKey){ q.value = text; q.focus(); }
+      else { q.value = text; sendQuestion(); }
+    });
+    suggest.appendChild(chip);
+  });
+  suggest.classList.remove('hidden');
+}
+function hideSuggest(){ suggest.classList.add('hidden'); }
+
+btnPlus.onclick = ()=> pdf.click();
+
+pdf.onchange = async ()=>{
+  const file = pdf.files?.[0];
+  if(!file) return;
+  indexed = false;
+  footInfo.textContent = ''; // Reset thông tin footer
+  showToast('Đang nạp PDF: '+file.name);
+  try{
+    const fd = new FormData(); fd.append('file', file);
+    const res = await fetch('/api/rag/reindex', { method:'POST', body: fd });
+    const js = await res.json();
+    if(res.ok){
+      indexed = true;
+      footInfo.textContent = `Đã nạp: ${file.name} • Chunks: ${js.chunks} • Vectors: ${js.vectors} • Thời gian: ${js.millis}ms`;
+      addMsg('Hệ thống đã Upload, bạn có thể đặt câu hỏi ngay');
+      showToast('Upload thành công ✅');
+    }else{
+      addErr('Lỗi upload: '+(js.message||js.error||res.status));
+      showToast('Upload thất bại ❌');
+      hideSuggest();
+    }
+  }catch(e){
+    addErr('Lỗi upload: '+e.message);
+    showToast('Upload thất bại ❌');
+    hideSuggest();
+  }
+};
+
+async function sendQuestion(){
+  const text = q.value.trim();
+  if(!text) return;
+  if(!indexed){ addErr('Chưa có dữ liệu. Hãy bấm dấu + để nạp PDF trước.'); return; }
+  addMsg(text,'me'); q.value='';
+  try{
+    const res = await fetch('/api/rag/ask', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({question:text})
+    });
+    const js = await res.json();
+    if(res.ok) {
+      addMsg(js.answer||'(trống)','ai',js.sources||[]);
+      // Cập nhật thông tin footer với số lượng sources được sử dụng
+      if(js.sources && js.sources.length > 0) {
+        const currentInfo = footInfo.textContent;
+        footInfo.textContent = currentInfo + ` • Sources sử dụng: ${js.sources.length}`;
+      }
+    }
+    else addErr('Lỗi: '+(js.message||js.error||res.status));
+  }catch(e){ addErr('Lỗi: '+e.message); }
+}
+send.onclick = sendQuestion;
+
+function esc(s){
+  return s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function prettyAI(text){
+  let t = text.trim()
+    .replace(/(?:\s|^)(\d+)\.\s/g, '\n$1. ')
+    .replace(/(?:\s|^)[\-–•]\s/g, m => '\n' + m.trim() + ' ');
+
+  t = esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+  const lines = t.split(/\n+/);
+  let html = '';
+  let i = 0;
+
+  const isNum = s => /^\d+\.\s/.test(s);
+  const isBul = s => /^[-–•]\s/.test(s);
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (!line) { html += '<br/>'; i++; continue; }
+
+    if (isNum(line)) {
+      html += '<ol>';
+      while (i < lines.length && isNum(lines[i].trim())) {
+        const item = lines[i].trim().replace(/^\d+\.\s/, '');
+        html += '<li>' + item + '</li>';
+        i++;
+      }
+      html += '</ol>';
+      continue;
+    }
+    if (isBul(line)) {
+      html += '<ul>';
+      while (i < lines.length && isBul(lines[i].trim())) {
+        const item = lines[i].trim().replace(/^[-–•]\s/, '');
+        html += '<li>' + item + '</li>';
+        i++;
+      }
+      html += '</ul>';
+      continue;
+    }
+    html += line + '<br/>';
+    i++;
+  }
+  html = html.replace(/(?:<br\/>){3,}/g, '<br/><br/>');
+  return html;
+}
+
+
+
+
+q.addEventListener('keydown', (e)=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendQuestion(); }
+});
+
+
+addMsg('Xin chào! Tôi là AI Assistant được hỗ trợ bởi OpenAI. Hãy bấm dấu + để nạp PDF.');
+
+
+function autosize(){
+  q.style.height = '0px';
+  const max = 200;
+  q.style.height = Math.min(q.scrollHeight, max) + 'px';
+}
+q.addEventListener('input', autosize);
+window.addEventListener('load', autosize);
+
+
+</script>
+</body>
+</html>

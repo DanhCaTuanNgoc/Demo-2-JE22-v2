@@ -1,0 +1,48 @@
+# ===============================
+# Sensitive Files - NEVER COMMIT
+# ===============================
+.env
+*.env
+application-local.properties
+
+# ===============================
+# Maven Build
+# ===============================
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+dependency-reduced-pom.xml
+.mvn/wrapper/maven-wrapper.jar
+
+# ===============================
+# IDE Files
+# ===============================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# ===============================
+# OS Files
+# ===============================
+.DS_Store
+Thumbs.db
+*.swp
+
+# ===============================
+# Logs
+# ===============================
+*.log
+logs/
