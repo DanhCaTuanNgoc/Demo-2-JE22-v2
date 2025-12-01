@@ -261,7 +261,7 @@ public class RagService {
                             .withTemperature(temperature)
                             .withMaxTokens(maxTokens)
                             .build())
-                    .call()                     // Spring AI handles HTTP internally
+                    .call()                     // Spring AI handles HTTP internally ---> call API
                     .content();                 // Extract response content
 
             System.out.println("   ✅ Answer generated successfully");
